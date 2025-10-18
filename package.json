@@ -1,0 +1,17 @@
+{
+  "name": "imail-checker",
+  "version": "1.0.0",
+  "description": "Automated imail.edu.vn inbox checker using Puppeteer",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "server": "node server.js"
+  },
+  "keywords": ["puppeteer", "automation", "email"],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "puppeteer": "^23.11.1",
+    "express": "^4.18.2"
+  }
+}

@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>iMail.edu.vn Inbox Checker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 600px;
+            width: 100%;
+            padding: 40px;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .input-wrapper {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .domain-label {
+            color: #666;
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        button:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .logs {
+            margin-top: 30px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            max-height: 300px;
+            overflow-y: auto;
+            display: none;
+        }
+
+        .logs.active {
+            display: block;
+        }
+
+        .log-entry {
+            padding: 8px 0;
+            color: #555;
+            font-size: 13px;
+            font-family: 'Courier New', monospace;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .log-entry:last-child {
+            border-bottom: none;
+        }
+
+        .result {
+            margin-top: 30px;
+            padding: 20px;
+            border-radius: 8px;
+            display: none;
+        }
+
+        .result.active {
+            display: block;
+        }
+
+        .result.success {
+            background: #d4edda;
+            border: 2px solid #c3e6cb;
+        }
+
+        .result.error {
+            background: #f8d7da;
+            border: 2px solid #f5c6cb;
+        }
+
+        .result.timeout {
+            background: #fff3cd;
+            border: 2px solid #ffeaa7;
+        }
+
+        .result-title {
+            font-weight: 600;
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+
+        .result.success .result-title {
+            color: #155724;
+        }
+
+        .result.error .result-title,
+        .result.timeout .result-title {
+            color: #721c24;
+        }
+
+        .email-details {
+            background: white;
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 10px;
+        }
+
+        .email-field {
+            margin-bottom: 10px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .email-field:last-child {
+            margin-bottom: 0;
+        }
+
+        .field-label {
+            font-weight: 600;
+            color: #555;
+            min-width: 120px;
+        }
+
+        .field-value {
+            color: #333;
+            word-break: break-word;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 8px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .error-message {
+            color: #721c24;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📧 iMail Inbox Checker</h1>
+        <p class="subtitle">Geçici email adresinizi oluşturun ve gelen kutusunu kontrol edin</p>
+
+        <form id="emailForm">
+            <div class="input-group">
+                <label for="username">Kullanıcı Adı</label>
+                <div class="input-wrapper">
+                    <input 
+                        type="text" 
+                        id="username" 
+                        name="username" 
+                        placeholder="ornek_kullanici" 
+                        required
+                        autocomplete="off"
+                    >
+                    <span class="domain-label">@imail.edu.vn</span>
+                </div>
+            </div>
+
+            <button type="submit" id="submitBtn">
+                <span id="btnText">Email Kontrolünü Başlat</span>
+            </button>
+        </form>
+
+        <div id="logs" class="logs"></div>
+        <div id="result" class="result"></div>
+    </div>
+
+    <script>
+        const form = document.getElementById('emailForm');
+        const usernameInput = document.getElementById('username');
+        const submitBtn = document.getElementById('submitBtn');
+        const btnText = document.getElementById('btnText');
+        const logsDiv = document.getElementById('logs');
+        const resultDiv = document.getElementById('result');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const username = usernameInput.value.trim();
+            if (!username) {
+                console.error('Username is empty');
+                return;
+            }
+
+            console.log('Starting email check for username:', username);
+
+            // Reset UI
+            logsDiv.innerHTML = '';
+            logsDiv.classList.add('active');
+            resultDiv.classList.remove('active');
+            resultDiv.className = 'result';
+            
+            // Disable form
+            submitBtn.disabled = true;
+            btnText.innerHTML = '<span class="spinner"></span>İşlem devam ediyor...';
+
+            try {
+                console.log('Sending request to /api/check-email...');
+                const response = await fetch('/api/check-email', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ username: username })
+                });
+
+                console.log('Response received, status:', response.status);
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+
+                console.log('Starting to read stream...');
+
+                while (true) {
+                    const { value, done } = await reader.read();
+                    if (done) {
+                        console.log('Stream ended');
+                        break;
+                    }
+
+                    const chunk = decoder.decode(value);
+                    console.log('Received chunk:', chunk);
+                    const lines = chunk.split('\n');
+
+                    for (const line of lines) {
+                        if (line.startsWith('data: ')) {
+                            const data = JSON.parse(line.slice(6));
+                            console.log('Parsed data:', data);
+
+                            if (data.type === 'log') {
+                                addLog(data.message);
+                            } else if (data.type === 'result') {
+                                displayResult(data.data);
+                            } else if (data.type === 'done') {
+                                console.log('Process completed with code:', data.code);
+                            } else if (data.type === 'error') {
+                                displayError(data.message);
+                            }
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error('Error occurred:', error);
+                displayError(error.message);
+            } finally {
+                // Re-enable form
+                submitBtn.disabled = false;
+                btnText.textContent = 'Email Kontrolünü Başlat';
+            }
+        });
+
+        function addLog(message) {
+            console.log('[LOG]:', message); // Also log to browser console
+            const logEntry = document.createElement('div');
+            logEntry.className = 'log-entry';
+            logEntry.textContent = message;
+            logsDiv.appendChild(logEntry);
+            logsDiv.scrollTop = logsDiv.scrollHeight;
+        }
+
+        function displayResult(data) {
+            resultDiv.classList.add('active');
+            
+            if (data.status === 'ok') {
+                resultDiv.classList.add('success');
+                resultDiv.innerHTML = `
+                    <div class="result-title">✅ Email Bulundu!</div>
+                    <div class="email-details">
+                        <div class="email-field">
+                            <span class="field-label">Email Adresi:</span>
+                            <span class="field-value">${data.username}</span>
+                        </div>
+                        <div class="email-field">
+                            <span class="field-label">Gönderen:</span>
+                            <span class="field-value">${data.sender_name}</span>
+                        </div>
+                        <div class="email-field">
+                            <span class="field-label">Gönderen Email:</span>
+                            <span class="field-value">${data.sender_email}</span>
+                        </div>
+                        <div class="email-field">
+                            <span class="field-label">Konu:</span>
+                            <span class="field-value">${data.subject}</span>
+                        </div>
+                        <div class="email-field">
+                            <span class="field-label">Zaman:</span>
+                            <span class="field-value">${data.relative_time}</span>
+                        </div>
+                        ${data.verification_code ? `
+                        <div class="email-field" style="margin-top: 15px; padding: 15px; background: #fff3cd; border: 2px solid #ffc107; border-radius: 8px;">
+                            <span class="field-label" style="font-size: 16px; color: #856404;">🔐 Doğrulama Kodu:</span>
+                            <span class="field-value" style="font-size: 24px; font-weight: bold; color: #856404; letter-spacing: 3px;">${data.verification_code}</span>
+                        </div>
+                        ` : ''}
+                    </div>
+                `;
+            } else if (data.status === 'timeout') {
+                resultDiv.classList.add('timeout');
+                resultDiv.innerHTML = `
+                    <div class="result-title">⏱️ Zaman Aşımı</div>
+                    <p class="error-message">${data.message}</p>
+                `;
+            } else if (data.status === 'error') {
+                resultDiv.classList.add('error');
+                resultDiv.innerHTML = `
+                    <div class="result-title">❌ Hata</div>
+                    <p class="error-message">${data.message}</p>
+                `;
+            }
+        }
+
+        function displayError(message) {
+            resultDiv.classList.add('active', 'error');
+            resultDiv.innerHTML = `
+                <div class="result-title">❌ Hata</div>
+                <p class="error-message">${message}</p>
+            `;
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,31 @@
+node js ve Puppeteer  kütüphanesi ile benim istediğim web sitesine gidecek ve orada benim istediğim işlemleri yaparak çalışıp çalışmadığını test etmek için bir ingilizce prompt yaz. 
+
+bu adrese gidecek : https://imail.edu.vn/
+
+Ve daha sonra buraya kullanıcının giriş yaptığı kullanıcı adını girecek : <input class="appearance-none bg-transparent flex-1 border-0 rounded-md py-4 px-5 focus:outline-none placeholder-white placeholder-opacity-30" type="text" name="user" wire:model.defer="user" placeholder="Kullanıcı Adı Girin">
+
+
+daha sonra buraya tıklayıp domain uzantısı seçecek : <input x-ref="domain" type="text" class="block appearance-none bg-transparent border-0 w-full py-4 px-5 pr-8 cursor-pointer focus:outline-none select-none rounded-md placeholder-white placeholder-opacity-30" placeholder="Alan Adı Seç" name="domain" wire:model="domain" readonly="">
+
+
+tikladigi yerden bu uzantiyi sececek : <a x-on:click="$refs.domain.value = 'imail.edu.vn'; $wire.setDomain('imail.edu.vn')" class="block px-4 py-2 text-sm leading-5 text-gray-700 cursor-pointer hover:bg-gray-100 focus:outline-none focus:bg-gray-100 transition duration-150 ease-in-out">imail.edu.vn</a>
+
+daha sonra olustura basacak buraya : <input class="block appearance-none rounded-r-md py-4 px-5 bg-teal-500 text-white cursor-pointer focus:outline-none" style="background-color: #2fc10a" type="submit" value="Oluştur">
+
+
+daha sonra bel'rl' saniyeler beklesin 3-5 ve gelen maili kontrol etsin ekrana yazdirsin mail burada oluyor geliyorsa yani : <div x-on:click="show = true; id = 4444725; document.querySelector('button.delete').setAttribute('wire:click', 'delete(4444725)')" class="flex items-center gap-3 hover:bg-gray-200 border-b border-dashed py-4 px-7 cursor-pointer" data-id="4444725">
+                                <div class="w-1/2 md:w-3/12">
+                                    Ozan
+                                    <div class="text-xs overflow-ellipsis">poetwhitecloud@gmail.com
+                                    </div>
+                                </div>
+                                <div class="w-1/2 md:w-7/12">deneme</div>
+                                <div class="hidden md:block w-full md:w-2/12">
+                                    <div class="flex justify-end">
+                                        55 saniye önce
+                                    </div>
+                                </div>
+                            </div>
+
+
+yukaridakiler islemler icin ingilizce prompt yaz
